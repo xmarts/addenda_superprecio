@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_addenda_superprecio_addenda_superprecio,addenda_superprecio.addenda_superprecio,model_addenda_superprecio_addenda_superprecio,,1,0,0,0

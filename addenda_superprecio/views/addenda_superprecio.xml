@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <template id="addenda_superprecio" name="Super precio">
+      <ap t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
+        <Detalle t-att-folio="record.reference">
+          <t t-foreach="record.fields_sales.order_line" t-as="rec">
+            <t t-set="units" t-value="rec.product_id.product_units" />
+            <t t-if="units == False">
+              <t t-set="units" t-value="0"/>
+            </t>
+            <t t-set="piez_ent" t-value="int(units) * rec.product_uom_qty" />
+            <t t-set="oper1" t-value="rec.price_unit * rec.product_uom_qty" />
+            <t t-set="oper2" t-value="oper1 / piez_ent" />
+            <t t-set="cant" t-value="rec.product_uom_qty" />
+            <Producto t-att-precioUnitarioPieza="'%.2f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.2f'% rec.price_unit" 
+              t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
+              <t t-set="cont" t-value="0" />
+              <t t-foreach="rec.tax_id"  t-as="tc">
+                <t t-foreach="tc.tag_ids" t-as="tg">
+                  <t t-if="record.partner_id.show_ieps == False">
+                    <t t-if="tg.name != 'IEPS'">
+                      <t t-set="resultimp" t-value="rec.price_unit" />
+                      <t t-set="resoperimp" t-value="resultimp * (tc.amount / 100)"  />
+                      <t t-set="cont" t-value="cont + resoperimp"  />
+                    </t>
+                  </t>
+                </t>
+              </t>
+              <t t-set="cont" t-value="cont * cant" />
+              <Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
+                <Traslados>
+                  <t t-foreach="rec.tax_id" t-as="tac">
+                    <t t-foreach="tac.tag_ids" t-as="tag">
+                      <t t-set="resultimpuest" t-value="rec.price_unit" />
+                      <t t-if="record.partner_id.show_ieps == False" >
+                        <t t-if="tag.name != 'IEPS'" >
+                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)" />
+                          <t t-set="opvar" t-value="var * cant" />
+                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                        </t>
+                      </t>
+                      <t t-else="">
+                        <t t-if="tag.name == 'IVA'">
+                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)" />
+                          <t t-set="opvar" t-value="var * cant" />
+                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                        </t>
+                        <t t-if="tag.name == 'IEPS'">
+                          <impuesto t-esc="tag.name" />
+                          <importe t-esc="tac.amount" />
+                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% tac.amount" />
+                        </t>
+                      </t>
+                    </t>
+                  </t>
+                </Traslados>
+              </Impuestos>
+            </Producto>
+          </t>
+        </Detalle>
+      </ap>
+    </template>
+    <record id="addenda_superprecio" model="ir.ui.view">
+      <field name="l10n_mx_edi_addenda_flag">True</field>
+    </record>
+  </data>
+</odoo>
