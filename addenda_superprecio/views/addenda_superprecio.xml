@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data noupdate="0">
-    <template id="addenda_superprecio" name="Super precio">
+    <template id="addenda_superprecio" name="Super precio codigo">
 
-      <ap t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
+        <ap t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
         <Detalle t-att-folio="record.fields_sales.number_order">
           <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()" />
           <t t-foreach="record.fields_sales.order_line" t-as="rec">
