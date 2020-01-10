@@ -3,10 +3,83 @@
   <data noupdate="0">
     <template id="addenda_superprecio" name="Super precio C">
 
-       <t t-foreach="record" t-as="t">
+       <t t-foreach="record" t-as="tt">
+   <t t-if="tt.type == 'out_invoice'">
+     
+   <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
+    <t t-foreach="record" t-as="t">
             <t t-if="t.type == 'out_invoice'">
-        <ap t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
-        <Detalle t-att-folio="record.fields_sales.number_order">
+              
+        <ap:Detalle t-att-folio="record.fields_sales.number_order">
+                <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()"/>
+          <t t-foreach="record.fields_sales.order_line" t-as="rec">
+            <t t-set="units" t-value="rec.product_id.product_units"/>
+            <t t-if="units == False">
+              <t t-set="units" t-value="0"/>
+            </t>
+            <t t-set="valprecre" t-value="0"/>
+            <t t-foreach="xml.Conceptos.Concepto" t-as="rc">
+              <t t-if="rc.get('NoIdentificacion') == rec.product_id.default_code">
+                <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
+              </t>
+            </t>
+            <t t-set="piez_ent" t-value="int(units) * rec.product_uom_qty"/>
+            <t t-set="oper1" t-value="float(valprecre) * rec.product_uom_qty"/>
+            <t t-set="oper2" t-value="oper1 / piez_ent"/>
+            <t t-set="cant" t-value="rec.product_uom_qty"/>
+            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
+              <t t-set="cont" t-value="0"/>
+              <t t-foreach="rec.tax_id" t-as="tc">
+                <t t-foreach="tc.tag_ids" t-as="tg">
+                  <t t-if="record.partner_id.show_ieps == False">
+                    <t t-if="tg.name != 'IEPS'">
+                      <t t-set="resultimp" t-value="float(valprecre)"/>
+                      <t t-set="resoperimp" t-value="resultimp * (tc.amount / 100)"/>
+                      <t t-set="cont" t-value="cont + resoperimp"/>
+                    </t>
+                  </t>
+                </t>
+              </t>
+              <t t-set="cont" t-value="cont * cant"/>
+              <ap:Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
+                <ap:Traslados>
+                  <t t-foreach="rec.tax_id" t-as="tac">
+                    <t t-foreach="tac.tag_ids" t-as="tag">
+                      <t t-set="resultimpuest" t-value="float(valprecre)"/>
+                      <t t-if="record.partner_id.show_ieps == False">
+                        <t t-if="tag.name != 'IEPS'">
+                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
+                          <t t-set="opvar" t-value="var * cant"/>
+                          <ap:Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                        </t>
+                      </t>
+                      <t t-else="">
+                        <t t-if="tag.name == 'IVA'">
+                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
+                          <t t-set="opvar" t-value="var * cant"/>
+                          <ap:Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                        </t>
+                        <t t-if="tag.name == 'IEPS'">
+                          <impuesto t-esc="tag.name"/>
+                          <importe t-esc="tac.amount"/>
+                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% tac.amount"/>
+                        </t>
+                      </t>
+                    </t>
+                  </t>
+                </ap:Traslados>
+              </ap:Impuestos>
+            </ap:Producto>
+          </t>
+               </ap:Detalle>
+         </t>
+        </t>
+      </ap:ap>
+      </t>  
+      
+      <t t-if="tt.type == 'out_refund'">
+        <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="NC">
+         <ap:Detalle t-att-folio="record.fields_sales.number_order">
           <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()"/>
           <t t-foreach="record.fields_sales.order_line" t-as="rec">
             <t t-set="units" t-value="rec.product_id.product_units"/>
@@ -23,7 +96,7 @@
             <t t-set="oper1" t-value="float(valprecre) * rec.product_uom_qty"/>
             <t t-set="oper2" t-value="oper1 / piez_ent"/>
             <t t-set="cant" t-value="rec.product_uom_qty"/>
-            <Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
+            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
               <t t-set="cont" t-value="0"/>
               <t t-foreach="rec.tax_id" t-as="tc">
                 <t t-foreach="tc.tag_ids" t-as="tg">
@@ -37,8 +110,8 @@
                 </t>
               </t>
               <t t-set="cont" t-value="cont * cant"/>
-              <Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
-                <Traslados>
+              <ap:Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
+                <ap:Traslados>
                   <t t-foreach="rec.tax_id" t-as="tac">
                     <t t-foreach="tac.tag_ids" t-as="tag">
                       <t t-set="resultimpuest" t-value="float(valprecre)"/>
@@ -46,97 +119,32 @@
                         <t t-if="tag.name != 'IEPS'">
                           <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
                           <t t-set="opvar" t-value="var * cant"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                          <ap:Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                         </t>
                       </t>
                       <t t-else="">
                         <t t-if="tag.name == 'IVA'">
                           <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
                           <t t-set="opvar" t-value="var * cant"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                          <ap:Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                         </t>
                         <t t-if="tag.name == 'IEPS'">
                           <impuesto t-esc="tag.name"/>
                           <importe t-esc="tac.amount"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% tac.amount"/>
+                          <ap:Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% tac.amount"/>
                         </t>
                       </t>
                     </t>
                   </t>
-                </Traslados>
-              </Impuestos>
-            </Producto>
+                </ap:Traslados>
+              </ap:Impuestos>
+            </ap:Producto>
           </t>
-        </Detalle>
-      </ap>
+        </ap:Detalle>
+        
+        </ap:ap>
        </t>
-          <t t-else="">
-             <ap t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="NC">
-        <Detalle t-att-folio="record.fields_sales.number_order">
-          <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()"/>
-          <t t-foreach="record.fields_sales.order_line" t-as="rec">
-            <t t-set="units" t-value="rec.product_id.product_units"/>
-            <t t-if="units == False">
-              <t t-set="units" t-value="0"/>
-            </t>
-            <t t-set="valprecre" t-value="0"/>
-            <t t-foreach="xml.Conceptos.Concepto" t-as="rc">
-              <t t-if="rc.get('NoIdentificacion') == rec.product_id.default_code">
-                <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
-              </t>
-            </t>
-            <t t-set="piez_ent" t-value="int(units) * rec.product_uom_qty"/>
-            <t t-set="oper1" t-value="float(valprecre) * rec.product_uom_qty"/>
-            <t t-set="oper2" t-value="oper1 / piez_ent"/>
-            <t t-set="cant" t-value="rec.product_uom_qty"/>
-            <Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
-              <t t-set="cont" t-value="0"/>
-              <t t-foreach="rec.tax_id" t-as="tc">
-                <t t-foreach="tc.tag_ids" t-as="tg">
-                  <t t-if="record.partner_id.show_ieps == False">
-                    <t t-if="tg.name != 'IEPS'">
-                      <t t-set="resultimp" t-value="float(valprecre)"/>
-                      <t t-set="resoperimp" t-value="resultimp * (tc.amount / 100)"/>
-                      <t t-set="cont" t-value="cont + resoperimp"/>
-                    </t>
-                  </t>
-                </t>
-              </t>
-              <t t-set="cont" t-value="cont * cant"/>
-              <Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
-                <Traslados>
-                  <t t-foreach="rec.tax_id" t-as="tac">
-                    <t t-foreach="tac.tag_ids" t-as="tag">
-                      <t t-set="resultimpuest" t-value="float(valprecre)"/>
-                      <t t-if="record.partner_id.show_ieps == False">
-                        <t t-if="tag.name != 'IEPS'">
-                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
-                          <t t-set="opvar" t-value="var * cant"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
-                        </t>
-                      </t>
-                      <t t-else="">
-                        <t t-if="tag.name == 'IVA'">
-                          <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
-                          <t t-set="opvar" t-value="var * cant"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
-                        </t>
-                        <t t-if="tag.name == 'IEPS'">
-                          <impuesto t-esc="tag.name"/>
-                          <importe t-esc="tac.amount"/>
-                          <Traslado t-att-impuesto="tag.name" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% tac.amount"/>
-                        </t>
-                      </t>
-                    </t>
-                  </t>
-                </Traslados>
-              </Impuestos>
-            </Producto>
-          </t>
-        </Detalle>
-      </ap>
-      </t>
-  </t>
+   </t>  
    
 
     </template>
