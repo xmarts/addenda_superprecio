@@ -3,16 +3,17 @@
   <data noupdate="0">
     <template id="addenda_superprecio" name="Super precio C">
 
+    
        <t t-foreach="record" t-as="tt">
    <t t-if="tt.type == 'out_invoice'">
      
-   <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="FE">
+   <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.comment" t-att-plazoPago="record.payment_term_id.name" tipoComprobante="FE">
     <t t-foreach="record" t-as="t">
             <t t-if="t.type == 'out_invoice'">
               
         <ap:Detalle t-att-folio="record.fields_sales.number_order">
                 <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()"/>
-          <t t-foreach="record.fields_sales.order_line" t-as="rec">
+          <t t-foreach="record.invoice_line_ids" t-as="rec">
             <t t-set="units" t-value="rec.product_id.product_units"/>
             <t t-if="units == False">
               <t t-set="units" t-value="0"/>
@@ -78,10 +79,10 @@
       </t>  
       
       <t t-if="tt.type == 'out_refund'">
-        <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.fields_sales.note" t-att-plazoPago="record.fields_sales.payment_term_id.name" tipoComprobante="NC">
+        <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="record.comment" t-att-plazoPago="record.payment_term_id.name" tipoComprobante="NC">
          <ap:Detalle t-att-folio="record.fields_sales.number_order">
           <t t-set="xml" t-value="record.l10n_mx_edi_get_xml_etree()"/>
-          <t t-foreach="record.fields_sales.order_line" t-as="rec">
+          <t t-foreach="record.invoice_line_ids" t-as="rec">
             <t t-set="units" t-value="rec.product_id.product_units"/>
             <t t-if="units == False">
               <t t-set="units" t-value="0"/>
