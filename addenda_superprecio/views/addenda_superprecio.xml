@@ -24,13 +24,13 @@
                 <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
               </t>
             </t>
-            <t t-set="piez_ent" t-value="int(units) * rec.product_uom_qty"/>
-            <t t-set="oper1" t-value="float(valprecre) * rec.product_uom_qty"/>
+            <t t-set="piez_ent" t-value="int(units) * rec.quantity"/>
+            <t t-set="oper1" t-value="float(valprecre) * rec.quantity"/>
             <t t-set="oper2" t-value="oper1 / piez_ent"/>
-            <t t-set="cant" t-value="rec.product_uom_qty"/>
-            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
+            <t t-set="cant" t-value="rec.quantity"/>
+            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.quantity)" t-att-codigoBarras="rec.product_id.barcode">
               <t t-set="cont" t-value="0"/>
-              <t t-foreach="rec.tax_id" t-as="tc">
+              <t t-foreach="rec.invoice_line_tax_ids" t-as="tc">
                 <t t-foreach="tc.tag_ids" t-as="tg">
                   <t t-if="record.partner_id.show_ieps == False">
                     <t t-if="tg.name != 'IEPS'">
@@ -44,7 +44,7 @@
               <t t-set="cont" t-value="cont * cant"/>
               <ap:Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
                 <ap:Traslados>
-                  <t t-foreach="rec.tax_id" t-as="tac">
+                  <t t-foreach="rec.invoice_line_tax_ids" t-as="tac">
                     <t t-foreach="tac.tag_ids" t-as="tag">
                       <t t-set="resultimpuest" t-value="float(valprecre)"/>
                       <t t-if="record.partner_id.show_ieps == False">
@@ -93,13 +93,13 @@
                 <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
               </t>
             </t>
-            <t t-set="piez_ent" t-value="int(units) * rec.product_uom_qty"/>
-            <t t-set="oper1" t-value="float(valprecre) * rec.product_uom_qty"/>
+            <t t-set="piez_ent" t-value="int(units) * rec.quantity"/>
+            <t t-set="oper1" t-value="float(valprecre) * rec.quantity"/>
             <t t-set="oper2" t-value="oper1 / piez_ent"/>
-            <t t-set="cant" t-value="rec.product_uom_qty"/>
-            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.product_uom_qty)" t-att-codigoBarras="rec.product_id.barcode">
+            <t t-set="cant" t-value="rec.quantity"/>
+            <ap:Producto t-att-precioUnitarioPieza="'%.4f'% oper2" t-att-piezasEntregadas="int(piez_ent)" t-att-precioUnitarioCaja="'%.4f'% float(valprecre)" t-att-cajasEntregadas="int(rec.quantity)" t-att-codigoBarras="rec.product_id.barcode">
               <t t-set="cont" t-value="0"/>
-              <t t-foreach="rec.tax_id" t-as="tc">
+              <t t-foreach="rec.invoice_line_tax_ids" t-as="tc">
                 <t t-foreach="tc.tag_ids" t-as="tg">
                   <t t-if="record.partner_id.show_ieps == False">
                     <t t-if="tg.name != 'IEPS'">
@@ -113,7 +113,7 @@
               <t t-set="cont" t-value="cont * cant"/>
               <ap:Impuestos t-att-totalImpuestosTrasladados="'%.4f'% cont">
                 <ap:Traslados>
-                  <t t-foreach="rec.tax_id" t-as="tac">
+                  <t t-foreach="rec.invoice_line_tax_ids" t-as="tac">
                     <t t-foreach="tac.tag_ids" t-as="tag">
                       <t t-set="resultimpuest" t-value="float(valprecre)"/>
                       <t t-if="record.partner_id.show_ieps == False">
