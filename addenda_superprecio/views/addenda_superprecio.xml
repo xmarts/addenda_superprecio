@@ -20,7 +20,7 @@
             </t>
             <t t-set="valprecre" t-value="0"/>
             <t t-foreach="xml.Conceptos.Concepto" t-as="rc">
-              <t t-if="rc.get('NoIdentificacion') == rec.product_id.default_code">
+              <t t-if="rc.get('NoIdentificacion') == rec.product_id.barcode">
                 <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
               </t>
             </t>
@@ -89,7 +89,7 @@
             </t>
             <t t-set="valprecre" t-value="0"/>
             <t t-foreach="xml.Conceptos.Concepto" t-as="rc">
-              <t t-if="rc.get('NoIdentificacion') == rec.product_id.default_code">
+              <t t-if="rc.get('NoIdentificacion') == rec.product_id.barcode">
                 <t t-set="valprecre" t-value="rc.get('ValorUnitario')"/>
               </t>
             </t>
