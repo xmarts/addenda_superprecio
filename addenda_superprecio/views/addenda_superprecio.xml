@@ -9,16 +9,19 @@
                             <t t-if="t.move_type == 'out_invoice'">
                                 <ap:Detalle t-att-folio="record.fields_sales.number_order">
                                     <t t-set="xml" t-value="record._get_values_addenda()"/>
+                                    <t t-set="format_float" t-value="xml.get('format_float')"/>
+                                    <t t-set="format_string" t-value="xml.get('format_string')"/>
+                                    <t t-set="tax_objected" t-value="xml.get('tax_objected')"/>
+                                    <t t-set="currency_precision" t-value="xml.get('currency_precision')"/>
                                     <t t-foreach="record.invoice_line_ids" t-as="rec">
                                         <t t-set="units" t-value="rec.product_id.product_units"/>
                                         <t t-if="units == False">
                                             <t t-set="units" t-value="0"/>
                                         </t>
-                                        <t t-set="valprecre" t-value="0"/>
                                         <t t-foreach="xml.get('invoice_line_vals_list')" t-as="line_vals">
                                             <t t-set="line" t-value="line_vals['line']"/>
-                                            <t t-if="line.product_id.default_code == rec.product_id.barcode">
-                                                <t t-set="valprecre" t-value="line_vals['gross_price_total_unit']"/>
+                                            <t t-if="format_string(line.product_id.default_code) == rec.product_id.barcode">
+                                                <t t-set="valprecre" t-value="format_float(line_vals['gross_price_total_unit'] if tax_objected == '02' else (line.price_total + line_vals['price_discount']) / line.quantity, currency_precision)"/>
                                             </t>
                                         </t>
                                         <t t-set="piez_ent" t-value="int(units) * rec.quantity"/>
@@ -84,6 +87,10 @@
                     <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.narration)" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="NC">
                         <ap:Detalle t-att-folio="record.fields_sales.number_order">
                             <t t-set="xml" t-value="record._get_values_addenda()"/>
+                            <t t-set="format_float" t-value="xml.get('format_float')"/>
+                            <t t-set="format_string" t-value="xml.get('format_string')"/>
+                            <t t-set="tax_objected" t-value="xml.get('tax_objected')"/>
+                            <t t-set="currency_precision" t-value="xml.get('currency_precision')"/>
                             <t t-foreach="record.invoice_line_ids" t-as="rec">
                                 <t t-set="units" t-value="rec.product_id.product_units"/>
                                 <t t-if="units == False">
@@ -92,8 +99,8 @@
                                 <t t-set="valprecre" t-value="0"/>
                                 <t t-foreach="xml.get('invoice_line_vals_list')" t-as="line_vals">
                                     <t t-set="line" t-value="line_vals['line']"/>
-                                    <t t-if="line.product_id.default_code == rec.product_id.barcode">
-                                        <t t-set="valprecre" t-value="line_vals['gross_price_total_unit']"/>
+                                    <t t-if="format_string(line.product_id.default_code) == rec.product_id.barcode">
+                                        <t t-set="valprecre" t-value="format_float(line_vals['gross_price_total_unit'] if tax_objected == '02' else (line.price_total + line_vals['price_discount']) / line.quantity, currency_precision)"/>
                                     </t>
                                 </t>
                                 <t t-set="piez_ent" t-value="int(units) * rec.quantity"/>
