@@ -162,16 +162,16 @@
                                                         </t>
                                                     </t>
                                                     <t t-if="tac.description[0:3] == 'IVA'">
-                                                                <t t-if="tac.amount != 0">
-                                                                    <!-- <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
-                                                                    <t t-set="opvar" t-value="var * cant"/> -->
-                                                                    <t t-set="opvar" t-value="(cant * resultimpuest/1.16)*0.16"/>
-                                                                    <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
-                                                                </t>
-                                                               <t t-if="tac.amount == 0">
-                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
-                                                                </t>
-                                                            </t>
+                                                        <t t-if="tac.amount != 0">
+                                                            <!-- <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
+                                                            <t t-set="opvar" t-value="var * cant"/> -->
+                                                            <t t-set="opvar" t-value="(cant * resultimpuest/1.16)*0.16"/>
+                                                            <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                                                        </t>
+                                                       <t t-if="tac.amount == 0">
+                                                          <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
+                                                        </t>
+                                                    </t>
                                                 </t>
                                                 <t t-else="">
                                                     <t t-if="tac.description[0:3] == 'IVA'">
@@ -182,9 +182,8 @@
                                                             <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                                                         </t>
                                                         <t t-if="tac.amount == 0">
-                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
-                                                                </t>
-                                                            </t>
+                                                          <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="0.0000" t-att-importe="0.00"/>
+                                                        </t>
                                                     </t>
                                                     <t t-if="tac.ieps == True">
                                                         <!-- <impuesto t-esc="tag.name"/>
