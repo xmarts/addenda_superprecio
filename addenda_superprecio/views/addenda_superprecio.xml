@@ -4,7 +4,7 @@
         <template id="addenda_superprecio" name="Super precio C">
             <t t-foreach="record" t-as="tt">
                 <t t-if="tt.move_type == 'out_invoice'">
-                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.narration)" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
+                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if record.narration else ''" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
                         <t t-foreach="record" t-as="t">
                             <t t-if="t.move_type == 'out_invoice'">
                                 <ap:Detalle t-att-folio="record.fields_sales.number_order">
@@ -69,7 +69,7 @@
                                                                     <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                                                                 </t>
                                                                <t t-if="tac.amount == 0">
-                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.00'" t-att-importe="'0.00'"/>
+                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
                                                                 </t>
                                                             </t>
                                                             
