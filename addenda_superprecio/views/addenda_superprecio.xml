@@ -4,7 +4,7 @@
         <template id="addenda_superprecio" name="Super precio C">
             <t t-foreach="record" t-as="tt">
                 <t t-if="tt.move_type == 'out_invoice'">
-                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if record.narration else ''" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
+                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else None" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
                         <t t-foreach="record" t-as="t">
                             <t t-if="t.move_type == 'out_invoice'">
                                 <ap:Detalle t-att-folio="record.fields_sales.number_order">
@@ -83,7 +83,7 @@
                                                                     <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                                                                 </t>
                                                                <t t-if="tac.amount == 0">
-                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="0.00" t-att-importe="0.00"/>
+                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="0.0000" t-att-importe="0.00"/>
                                                                 </t>
                                                             </t>
                                                             <t t-if="tac.ieps == True">
@@ -105,7 +105,7 @@
                     </ap:ap>
                 </t>
                 <t t-if="tt.move_type == 'out_refund'">
-                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.narration)" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="NC">
+                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else None" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="NC">
                         <ap:Detalle t-att-folio="record.fields_sales.number_order">
                             <t t-set="xml" t-value="record._get_values_addenda()"/>
                             <t t-set="format_float" t-value="xml.get('format_float')"/>
@@ -120,7 +120,7 @@
                                 <t t-set="valprecre" t-value="0"/>
                                 <t t-foreach="xml.get('invoice_line_vals_list')" t-as="line_vals">
                                     <t t-set="line" t-value="line_vals['line']"/>
-                                    <t t-if="format_string(line.product_id.default_code) == rec.product_id.barcode">
+                                   <t t-if="format_string(line.product_id.barcode) == rec.product_id.barcode">
                                         <!-- FIXME: Revisar esta parte -->
                                         <!-- <t t-set="valprecre" t-value="format_float(line_vals['gross_price_total_unit'] if tax_objected == '02' else (line.price_total + line_vals['price_discount']) / line.quantity, currency_precision)"/> -->
                                         <t t-set="valprecre" t-value="format_float(rec.price_unit, currency_precision)"/>
@@ -161,6 +161,17 @@
                                                             <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                                                         </t>
                                                     </t>
+                                                    <t t-if="tac.description[0:3] == 'IVA'">
+                                                                <t t-if="tac.amount != 0">
+                                                                    <!-- <t t-set="var" t-value="resultimpuest * (tac.amount / 100)"/>
+                                                                    <t t-set="opvar" t-value="var * cant"/> -->
+                                                                    <t t-set="opvar" t-value="(cant * resultimpuest/1.16)*0.16"/>
+                                                                    <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
+                                                                </t>
+                                                               <t t-if="tac.amount == 0">
+                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
+                                                                </t>
+                                                            </t>
                                                 </t>
                                                 <t t-else="">
                                                     <t t-if="tac.description[0:3] == 'IVA'">
@@ -170,6 +181,10 @@
                                                             <t t-set="opvar" t-value="(cant * resultimpuest/1.16)*0.16"/>
                                                             <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'%.2f'% tac.amount" t-att-importe="'%.4f'% opvar"/>
                                                         </t>
+                                                        <t t-if="tac.amount == 0">
+                                                                  <ap:Traslado t-att-impuesto="'IVA'" t-att-tasa="'0.0000'" t-att-importe="'0.00'"/>
+                                                                </t>
+                                                            </t>
                                                     </t>
                                                     <t t-if="tac.ieps == True">
                                                         <!-- <impuesto t-esc="tag.name"/>
