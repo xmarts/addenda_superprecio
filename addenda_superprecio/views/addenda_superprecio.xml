@@ -4,7 +4,7 @@
         <template id="addenda_superprecio" name="Super precio C">
             <t t-foreach="record" t-as="tt">
                 <t t-if="tt.move_type == 'out_invoice'">
-                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else None" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
+                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else ''" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="FE">
                         <t t-foreach="record" t-as="t">
                             <t t-if="t.move_type == 'out_invoice'">
                                 <ap:Detalle t-att-folio="record.fields_sales.number_order">
@@ -105,7 +105,7 @@
                     </ap:ap>
                 </t>
                 <t t-if="tt.move_type == 'out_refund'">
-                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else None" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="NC">
+                    <ap:ap xmlns:ap="http://www.tiendasneto.com/ap" t-att-observaciones="str(record.text_from_html(record.narration)) if len(record.text_from_html(record.narration)) > 1 else ''" t-att-plazoPago="record.invoice_payment_term_id.name" tipoComprobante="NC">
                         <ap:Detalle t-att-folio="record.fields_sales.number_order">
                             <t t-set="xml" t-value="record._get_values_addenda()"/>
                             <t t-set="format_float" t-value="xml.get('format_float')"/>
